@@ -16,4 +16,4 @@ Additional config files were modified from either [Islandora-Devops/isle-buildki
 
 This repo follows the same semver tagging schema as [islandora/drupal]. [islandora/drupal] images are found using [a bash script](./ci/find-tags.sh). Those tags are then used to create separate images for each isle-buildkit tag.
 
-[islandora/drupal](https://github.com/Islandora-Devops/isle-buildkit/tree/main/drupal)
+[islandora/drupal]: https://github.com/Islandora-Devops/isle-buildkit/tree/main/drupal

@@ -1,6 +1,9 @@
 name: build-push-ar
 on:
   push:
+  workflow_dispatch:
+  schedule:
+    - cron: '15 1 * * 0'
 jobs:
   find-tags:
     name: Find islandora drupal tags
