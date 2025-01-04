@@ -1,0 +1,24 @@
+[www]
+user = nginx
+group = nginx
+listen = php-fpm83.sock
+listen.owner = nginx
+listen.group = nginx
+listen.mode = 0660
+
+pm = ondemand
+pm.max_children = 10
+pm.start_servers = 2
+pm.min_spare_servers = 1
+pm.max_spare_servers = 3
+pm.status_path = /status
+request_terminate_timeout = {{ getenv "PHP_REQUEST_TERMINATE_TIMEOUT" }}
+catch_workers_output = yes
+decorate_workers_output = no
+clear_env = yes
+env['SOLR_HOCR_PLUGIN_PATH'] = "{{ getenv "SOLR_HOCR_PLUGIN_PATH" }}"
+env['GOOGLE_PROJECT_ID'] = "{{ getenv "GOOGLE_PROJECT_ID" }}"
+env['LIBOPS_ENVIRONMENT'] = "{{ getenv "LIBOPS_ENVIRONMENT" }}"
+env['DRUPAL_DEFAULT_DB_PASSWORD'] = "{{ getenv "DRUPAL_DEFAULT_DB_PASSWORD" }}"
+env['DRUPAL_DEFAULT_SALT'] = "{{ getenv "DRUPAL_DEFAULT_SALT" }}"
+env['DRUPAL_DEFAULT_IIIF_URL'] = "{{ getenv "DRUPAL_DEFAULT_IIIF_URL" }}"

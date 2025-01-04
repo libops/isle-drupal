@@ -1,0 +1,27 @@
+name: build-push-ar
+on:
+  push:
+jobs:
+  find-tags:
+    name: Find islandora drupal tags
+    runs-on: ubuntu-24.04
+    outputs:
+      tags: ${{ steps.get-tags.outputs.tags }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: get tags
+        id: get-tags
+        run: ./ci/find-tags.sh
+  build-push-ar:
+    needs: [find-tags]
+    strategy:
+      matrix:
+        tag: ${{ fromJson(needs.find-tags.outputs.tags )}}
+    uses: libops/actions/.github/workflows/build-push.yml@main
+    with:
+      image: "shared/isle-drupal"
+      build-args: "TAG=${{ matrix.tag }}"
+    permissions:
+      contents: read
+      id-token: write
+    secrets: inherit

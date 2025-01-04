@@ -1,0 +1,74 @@
+/**
+ *  Section appended onto drupal/core default.settings.php via "drupal-scaffold" in composer.json.
+ */
+
+// Let Drush use all the memory available.
+if (PHP_SAPI === 'cli') {
+  ini_set('memory_limit', '-1');
+}
+
+$settings['reverse_proxy'] = TRUE;
+$settings['reverse_proxy_addresses'] = [$_SERVER['REMOTE_ADDR']];
+$settings['reverse_proxy_trusted_headers'] = \Symfony\Component\HttpFoundation\Request::HEADER_X_FORWARDED_FOR | 
+\Symfony\Component\HttpFoundation\Request::HEADER_X_FORWARDED_PROTO | \Symfony\Component\HttpFoundation\Request::HEADER_X_FORWARDED_PORT;
+
+// LibOps is not vulnerable to host header attacks
+$settings['trusted_host_patterns'] = [
+   '.*',
+];
+
+$settings['file_private_path'] = '/var/www/drupal/private/';
+
+// Shared configuration, config_split is used for any site specific differences.
+$settings['config_sync_directory'] = '/var/www/drupal/config/sync';
+
+// Some configurations are derived from environment variables.
+$config['islandora.settings']['broker_url'] = "tcp://parry:61613";
+$config['islandora.settings']['broker_user'] = NULL;
+$config['islandora.settings']['broker_password'] = NULL;
+$config['islandora_iiif.settings']['iiif_server'] = getenv('DRUPAL_DEFAULT_IIIF_URL');
+$config['openseadragon.settings']['iiif_server'] = $config['islandora_iiif.settings']['iiif_server'];
+
+// Others are hardcoded.
+$config['key.key.islandora_rsa_key']['key_provider_settings']['file_location'] = '/opt/keys/jwt/private.key';
+
+// Some settings are derived from environment variables.
+$settings['hash_salt'] = getenv('DRUPAL_DEFAULT_SALT');
+
+// Database settings are also derived from environment variables.
+$databases['default']['default'] = [
+  'database' => "drupal_default",
+  'username' => "drupal_default",
+  'password' => getenv('DRUPAL_DEFAULT_DB_PASSWORD'),
+  'host' => "mariadb",
+  'port' => 3306,
+  'prefix' => '',
+  'driver' => 'mysql',
+  'namespace' => 'Drupal\\Core\\Database\\Driver\\mysql',
+];
+
+// add a GCS bucket URI for each site environment
+$envs = ['development', 'production'];
+if (!in_array(getenv('LIBOPS_ENVIRONMENT'), $envs)) {
+  $envs[] = getenv('LIBOPS_ENVIRONMENT');
+}
+foreach ($envs as $env) {
+  $uri = 'gs-' . $env;
+  $settings['flysystem'][$uri] = [
+    'driver' => 'gcs',
+    'config' => [
+      // point to the bucket for the given environment
+      'bucket' => getenv('GOOGLE_PROJECT_ID') . '-' . $env . '-files',
+      'projectId' => getenv('GOOGLE_PROJECT_ID'),
+    ]
+  ];
+}
+
+// Change the php_storage settings in your setting.php. It is recommend that
+// this directory be outside out of the docroot.
+$settings['php_storage']['twig']['directory'] = $settings['file_private_path'] . '/php';
+$settings['php_storage']['twig']['secret'] = $settings['hash_salt'];
+
+/**
+ *  End Section.
+ */
