@@ -25,6 +25,7 @@ jobs:
     with:
       image: "shared/isle-drupal"
       build-args: "TAG=${{ matrix.tag }}"
+      tag: "${{ matrix.tag }}"
     permissions:
       contents: read
       id-token: write
